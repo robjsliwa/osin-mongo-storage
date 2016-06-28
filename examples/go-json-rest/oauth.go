@@ -7,9 +7,9 @@ import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 
-	"github.com/RangelReale/osin"
-	"github.com/RangelReale/osin/example"
-	"github.com/martint17r/osin-mongo-storage/mgostore"
+	"github.com/robjsliwa/osin"
+	"github.com/robjsliwa/osin-mongo-storage/mgostore"
+	"github.com/robjsliwa/osin/example"
 )
 
 type UserData bson.M

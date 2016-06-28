@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/RangelReale/osin"
+	"github.com/robjsliwa/osin"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )
@@ -58,8 +58,8 @@ func deleteTestDatabase(storage *MongoStorage) {
 	}
 }
 
-func setClient1234(storage *MongoStorage) (*osin.Client, error) {
-	client := &osin.Client{
+func setClient1234(storage *MongoStorage) (osin.Client, error) {
+	client := &osin.DefaultClient{
 		Id:          "1234",
 		Secret:      "aabbccdd",
 		RedirectUri: "http://localhost:14000/appauth"}
@@ -84,7 +84,7 @@ func TestGetClient(t *testing.T) {
 		t.Errorf("setClient returned err: %v", err)
 		return
 	}
-	getClient, err := storage.GetClient(client.Id)
+	getClient, err := storage.GetClient(client.GetId())
 	if err != nil {
 		t.Errorf("getClient returned err: %v", err)
 		return

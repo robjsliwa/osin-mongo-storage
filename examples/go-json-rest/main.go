@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/martint17r/osin-mongo-storage/mgostore"
+	"github.com/robjsliwa/osin-mongo-storage/mgostore"
 
-	"github.com/RangelReale/osin"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/robjsliwa/osin"
 	"labix.org/v2/mgo"
 )
 

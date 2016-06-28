@@ -1,7 +1,7 @@
 package mgostore
 
 import (
-	"github.com/RangelReale/osin"
+	"github.com/robjsliwa/osin"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -38,16 +38,17 @@ func New(session *mgo.Session, dbName string) *MongoStorage {
 	return storage
 }
 
-func (store *MongoStorage) GetClient(id string) (*osin.Client, error) {
+func (store *MongoStorage) GetClient(id string) (osin.Client, error) {
 	session := store.session.Copy()
 	defer session.Close()
 	clients := session.DB(store.dbName).C(CLIENT_COL)
-	client := new(osin.Client)
+	client := new(osin.DefaultClient)
 	err := clients.FindId(id).One(client)
+
 	return client, err
 }
 
-func (store *MongoStorage) SetClient(id string, client *osin.Client) error {
+func (store *MongoStorage) SetClient(id string, client osin.Client) error {
 	session := store.session.Copy()
 	defer session.Close()
 	clients := session.DB(store.dbName).C(CLIENT_COL)
@@ -68,7 +69,14 @@ func (store *MongoStorage) LoadAuthorize(code string) (*osin.AuthorizeData, erro
 	defer session.Close()
 	authorizations := session.DB(store.dbName).C(AUTHORIZE_COL)
 	authData := new(osin.AuthorizeData)
-	err := authorizations.FindId(code).One(authData)
+	defaultAuthData := new(DefaultAuthorizeData)
+	err := authorizations.FindId(code).One(defaultAuthData)
+	if err != nil {
+		return nil, err
+	}
+
+	defaultAuthData.CopyToAuthorizeData(authData)
+
 	return authData, err
 }
 
@@ -91,8 +99,15 @@ func (store *MongoStorage) LoadAccess(token string) (*osin.AccessData, error) {
 	session := store.session.Copy()
 	defer session.Close()
 	accesses := session.DB(store.dbName).C(ACCESS_COL)
+	defaultAccData := new(DefaultAccessData)
 	accData := new(osin.AccessData)
-	err := accesses.FindId(token).One(accData)
+	err := accesses.FindId(token).One(defaultAccData)
+	if err != nil {
+		return nil, err
+	}
+
+	defaultAccData.CopyToAccessData(accData)
+
 	return accData, err
 }
 
@@ -107,8 +122,15 @@ func (store *MongoStorage) LoadRefresh(token string) (*osin.AccessData, error) {
 	session := store.session.Copy()
 	defer session.Close()
 	accesses := session.DB(store.dbName).C(ACCESS_COL)
+	defaultAccData := new(DefaultAccessData)
 	accData := new(osin.AccessData)
-	err := accesses.Find(bson.M{REFRESHTOKEN: token}).One(accData)
+	err := accesses.Find(bson.M{REFRESHTOKEN: token}).One(defaultAccData)
+	if err != nil {
+		return nil, err
+	}
+
+	defaultAccData.CopyToAccessData(accData)
+
 	return accData, err
 }
 
@@ -120,4 +142,12 @@ func (store *MongoStorage) RemoveRefresh(token string) error {
 		"$unset": bson.M{
 			REFRESHTOKEN: 1,
 		}})
+}
+
+func (store *MongoStorage) Clone() osin.Storage {
+	return store
+}
+
+func (store *MongoStorage) Close() {
+	// nothing to do
 }
