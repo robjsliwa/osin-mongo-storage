@@ -14,7 +14,7 @@ const (
 	ACCESS_COL    = "accesses"
 )
 
-const REFRESHTOKEN = "refreshtoken"
+const REFRESHTOKEN = "$hashed:refreshtoken"
 
 type MongoStorage struct {
 	dbName  string
