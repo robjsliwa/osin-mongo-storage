@@ -91,7 +91,7 @@ func (store *MongoStorage) SaveAccess(data *osin.AccessData) error {
 	session := store.session.Copy()
 	defer session.Close()
 	accesses := session.DB(store.dbName).C(ACCESS_COL)
-	_, err := accesses.UpsertId(data.AccessToken, data)
+	_, err := accesses.Upsert(bson.M{"accesstoken": data.AccessToken}, data)
 	return err
 }
 
@@ -101,7 +101,7 @@ func (store *MongoStorage) LoadAccess(token string) (*osin.AccessData, error) {
 	accesses := session.DB(store.dbName).C(ACCESS_COL)
 	defaultAccData := new(DefaultAccessData)
 	accData := new(osin.AccessData)
-	err := accesses.FindId(token).One(defaultAccData)
+	err := accesses.Find(bson.M{"accesstoken": token}).One(defaultAccData)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (store *MongoStorage) RemoveAccess(token string) error {
 	session := store.session.Copy()
 	defer session.Close()
 	accesses := session.DB(store.dbName).C(ACCESS_COL)
-	return accesses.RemoveId(token)
+	return accesses.Remove(bson.M{"accesstoken": token})
 }
 
 func (store *MongoStorage) LoadRefresh(token string) (*osin.AccessData, error) {
